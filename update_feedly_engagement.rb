@@ -100,5 +100,5 @@ logger.info "Refreshing feedly engagement since #{since} days ago/#{since.days.a
 update_feedly_engagement(conn: conn, since: since.days.ago)
 
 logger.info 'Refreshing articles ...'
-conn.exec('REFRESH MATERIALIZED VIEW articles;')
+conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY articles;')
 logger.info '... articles refreshed!'

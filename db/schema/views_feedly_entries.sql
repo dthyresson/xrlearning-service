@@ -91,7 +91,7 @@ CREATE MATERIALIZED VIEW articles AS (
   , site
   , title
 );
-CREATE INDEX articles_idx ON articles (feedly_id);
+CREATE UNIQUE INDEX articles_idx ON articles (feedly_id);
 CREATE INDEX articles_site_idx ON articles (site);
 CREATE INDEX articles_author_idx ON articles (author);
 

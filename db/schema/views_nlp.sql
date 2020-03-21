@@ -30,23 +30,55 @@ figi	The Financial Instrument Global Identifier (FIGI) (formerly Bloomberg Globa
 
 DROP VIEW IF EXISTS vw_article_nlp_entities CASCADE;
 CREATE VIEW vw_article_nlp_entities AS (
-SELECT DISTINCT
-  e.feedly_id
-, jsonb_array_elements(jsonb_array_elements((e.payload -> 'entities'::text)) -> 'type'::text) ->> 0 AS entity_type
-, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'entityId'::text AS entity_id
-, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'unit'::text AS unit
-, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'crunchbaseId'::text AS crunchbase_id
-, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'figi'::text AS figi
-, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'freebaseId'::text AS freebase_id
-, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'lei'::text AS lei
-, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'permid'::text AS permid
-, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'wikidataId'::text AS wikidata_id
-, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'wikiLink'::text AS wiki_link
-, (jsonb_array_elements((e.payload -> 'entities'::text)) -> 'relevanceScore'::text)::numeric AS relevance_score
-, (jsonb_array_elements((e.payload -> 'entities'::text)) -> 'confidenceScore'::text)::numeric  AS confidence_sore
-FROM feedly_entry_text_analyses e
-JOIN articles a on a.feedly_id = e.feedly_id
-ORDER by e.feedly_id
+  WITH t1 AS (
+  	SELECT
+  	  e.feedly_id
+  	, jsonb_array_elements(jsonb_array_elements((e.payload -> 'entities'::text)) -> 'type'::text) ->> 0 AS entity_type
+  	, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'entityId'::text AS entity_id
+  	, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'unit'::text AS unit
+  	, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'crunchbaseId'::text AS crunchbase_id
+  	, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'figi'::text AS figi
+  	, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'freebaseId'::text AS freebase_id
+  	, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'lei'::text AS lei
+  	, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'permid'::text AS permid
+  	, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'wikidataId'::text AS wikidata_id
+  	, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'wikiLink'::text AS wiki_link
+  	, (jsonb_array_elements((e.payload -> 'entities'::text)) -> 'relevanceScore'::text)::numeric AS relevance_score
+  	, (jsonb_array_elements((e.payload -> 'entities'::text)) -> 'confidenceScore'::text)::numeric  AS confidence_sore
+  	FROM feedly_entry_text_analyses e
+  	JOIN articles a on a.feedly_id = e.feedly_id
+  	ORDER by e.feedly_id
+  )
+
+  SELECT
+    t1.feedly_id
+  , t1.entity_type
+  , t1.entity_id
+  , t1.unit
+  , t1.crunchbase_id
+  , t1.figi
+  , t1.freebase_id
+  , t1.lei
+  , t1.permid
+  , t1.wikidata_id
+  , t1.wiki_link
+  , MAX(t1.relevance_score) AS relevance_score
+  , MAX(t1.confidence_sore) AS confidence_sore
+  , COUNT(entity_id) as mentions
+  FROM t1
+  GROUP BY
+    feedly_id
+  , entity_type
+  , entity_id
+  , unit
+  , crunchbase_id
+  , figi
+  , freebase_id
+  , lei
+  , permid
+  , wikidata_id
+  , wiki_link
+  ORDER by feedly_id
 );
 
 ---
@@ -55,13 +87,18 @@ DROP VIEW IF EXISTS vw_article_nlp_companies CASCADE;
 CREATE VIEW vw_article_nlp_companies AS (
 WITH
   t1 as (
-    SELECT DISTINCT feedly_id, crunchbase_id, relevance_score, confidence_sore
+    SELECT feedly_id
+    , crunchbase_id
+    , max(relevance_score) as relevance_score
+    , max(confidence_sore) as confidence_sore
+    , max(mentions) as mentions
     FROM vw_article_nlp_entities
 
     WHERE entity_type in ('Company', 'Organisation')
+    GROUP BY feedly_id, crunchbase_id
   )
 
-  SELECT
+  SELECT DISTINCT
     t1.feedly_id
   , t1.relevance_score
   , t1.confidence_sore

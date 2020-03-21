@@ -21,7 +21,7 @@ CREATE VIEW vw_xr_nlp_topics AS
 
 DROP MATERIALIZED VIEW IF EXISTS xr_company_articles_with_sectors;
 CREATE MATERIALIZED VIEW xr_company_articles_with_sectors AS (
-select
+select 
   n.feedly_id
 , n.topic_label
 , n.topic_score
@@ -46,8 +46,7 @@ join vw_article_nlp_companies c on c.feedly_id = n.feedly_id
 join vw_organization_categories oc on oc.uuid = c.uuid
 join vw_organization_category_groups g on g.uuid = c.uuid
 );
-CREATE INDEX xr_company_articles_with_sectors_pk
-  ON xr_company_articles_with_sectors (feedly_id, topic_label, uuid, category_group, category);
+
 CREATE INDEX xr_company_articles_feedly_id_idx ON xr_company_articles_with_sectors USING btree (feedly_id);
 CREATE INDEX xr_company_articles_topic_label_idx ON xr_company_articles_with_sectors USING btree (topic_label);
 CREATE INDEX xr_company_articles_category_idx ON xr_company_articles_with_sectors USING btree (category);
@@ -58,7 +57,10 @@ CREATE INDEX xr_company_articles_region_idx ON xr_company_articles_with_sectors 
 CREATE INDEX xr_company_articles_published_on_idx ON xr_company_articles_with_sectors USING btree (published_on);
 CREATE INDEX xr_company_articles_published_week_idx ON xr_company_articles_with_sectors USING btree (published_week);
 CREATE INDEX xr_company_articles_published_month_idx ON xr_company_articles_with_sectors USING btree (published_month);
-CREATE INDEX xr_company_articles_uuid_idx ON xr_company_articles_with_sectors USING btree (uuid);
+CREATE INDEX xr_company_articles_with_sectors_uuid_idx ON xr_company_articles_with_sectors USING btree (uuid);
+
+CREATE UNIQUE INDEX xr_company_articles_with_sectors_pk
+  ON xr_company_articles_with_sectors (feedly_id, topic_label, uuid, category_group, category);
 
 --
 
