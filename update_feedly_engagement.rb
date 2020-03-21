@@ -7,14 +7,14 @@ require 'pg'
 require 'active_support/core_ext/numeric/time'
 require 'active_support/core_ext/array'
 require 'logger'
+require 'optparse'
+
+Dotenv.load
+
 
 def logger
   @logger ||= Logger.new(STDOUT)
 end
-
-Dotenv.load
-
-logger.info 'Update Feedly Engagement ...'
 
 config = {
   host: ENV['PGHOST'],
@@ -23,6 +23,23 @@ config = {
   user: ENV['PGUSER'],
   password: ENV['PGPASSWORD'],
 }
+
+Options = Struct.new(:since)
+options = {}
+
+args = Options.new("world")
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: update_feedly_engagement.rb [options]"
+
+  opts.on("-s", "--since==DAYS", "Update feedly entry engagement crawled since days ago") do |s|
+    options[:since] = s
+    args.since = s
+  end
+end.parse!
+
+logger.info 'Update Feedly Engagement ...'
+
 
 conn = PG.connect(config)
 
@@ -75,7 +92,12 @@ end
 
 # Maybe refresh 1 day, 2 days, 4 days and 7 days after the crawl date?
 #  The engagement value changes the most in the first 2 days, after that it tapers off quickly.
-update_feedly_engagement(conn: conn, since: 2.days.ago)
+
+since = options[:since] ? (args.since || 2).to_i : 1
+
+logger.info "Refreshing feedly engagement since #{since} days ago/#{since.days.ago} ... "
+
+update_feedly_engagement(conn: conn, since: since.days.ago)
 
 logger.info 'Refreshing articles ...'
 conn.exec('REFRESH MATERIALIZED VIEW articles;')
