@@ -6,10 +6,15 @@ require 'httparty'
 require 'pg'
 require 'active_support/core_ext/numeric/time'
 require 'active_support/core_ext/array'
+require 'logger'
+
+def logger
+  @logger ||= Logger.new(STDOUT)
+end
 
 Dotenv.load
 
-puts 'Update Feedly Engagement ...'
+logger.info 'Update Feedly Engagement ...'
 
 config = {
   host: ENV['PGHOST'],
@@ -63,7 +68,7 @@ def update_feedly_engagement(conn:, since: 7.days.ago)
         update_feedly_entry(conn: conn, feedly_entry: feedly_entry)
       end
       sleep(2)
-      puts 'next'
+      logger.info 'next'
     end
   end
 end
@@ -72,5 +77,5 @@ end
 #  The engagement value changes the most in the first 2 days, after that it tapers off quickly.
 update_feedly_engagement(conn: conn, since: 2.days.ago)
 
-puts 'Refreshing articles ...'
+logger.info 'Refreshing articles ...'
 conn.exec('REFRESH MATERIALIZED VIEW articles;')

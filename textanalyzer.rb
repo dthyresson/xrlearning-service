@@ -4,10 +4,15 @@ require 'rubygems'
 require 'dotenv'
 require 'httparty'
 require 'pg'
+require 'logger'
+
+def logger
+  @logger ||= Logger.new(STDOUT)
+end
 
 Dotenv.load
 
-puts 'Textrazor loader ...'
+logger.info 'Textrazor loader ...'
 
 config = {
   host: ENV['PGHOST'],
@@ -37,7 +42,7 @@ def textrazor_analyze(url:)
                       })
 
   if response['error']
-   puts "Error >>> #{response['error']}"
+   logger.info "Error >>> #{response['error']}"
    nil
   else
     if response['response']
@@ -60,13 +65,13 @@ conn.exec(%Q(
               WHERE a.feedly_id IS NULL
               ORDER BY e.created_at, e.feedly_id
             ) ) do |result|
-  puts "Entries to enrich: #{result.count}"
+  logger.info "Entries to enrich: #{result.count}"
   result.each_with_index do |row, index|
     refresh = true
     feedly_id = row['feedly_id']
     url = row['url']
 
-    puts "Analyzing #{index} -> #{feedly_id} #{url}"
+    logger.info "Analyzing #{index} -> #{feedly_id} #{url}"
 
     if payload = textrazor_analyze(url: url)
       stm = %Q(INSERT INTO feedly_entry_text_analyses (created_at,
@@ -101,7 +106,7 @@ conn.exec(%Q(
        conn.exec_params(stm, [feedly_id, payload.to_json])
 
       if ((index + 1) % 5) == 0
-        puts ('sleeping ...')
+        logger.info ('sleeping ...')
         sleep(5)
       end
     else
@@ -133,13 +138,13 @@ conn.exec(%Q(
              WHERE feedly_entry_text_analyses.feedly_id = $1)
 
       conn.exec_params(stm, [feedly_id])
-      puts ">>> Issue with #{feedly_id} #{url}"
+      logger.info ">>> Issue with #{feedly_id} #{url}"
     end
   end
 end
 
 if refresh
-  puts 'Refreshing views...'
+  logger.info 'Refreshing views...'
   conn.exec('REFRESH MATERIALIZED VIEW xr_company_articles_with_sectors;')
 end
 conn.finish
