@@ -77,7 +77,7 @@ def update_feedly_engagement(conn:, since: 7.days.ago)
                 JOIN vw_feedly_entry_details d on d.feedly_id = e.feedly_id
                 WHERE e.crawled_at >= $1
                 ORDER BY e.created_at, e.feedly_id
-              ), [since.beginning_of_day]) do |result|
+              ), [since]) do |result|
     puts "Entries to enrich: #{result.count}"
     result.column_values(0).in_groups_of(250) do |group|
       feedly_ids = group.compact
