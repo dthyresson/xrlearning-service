@@ -8,6 +8,12 @@ GEM
       tzinfo (~> 1.1)
     concurrent-ruby (1.1.6)
     dotenv (2.7.5)
+    faraday (1.0.0)
+      multipart-post (>= 1.2, < 3)
+    faraday_middleware (1.0.0.rc1)
+      faraday (~> 1.0)
+    gli (2.19.0)
+    hashie (4.1.0)
     httparty (0.13.7)
       json (~> 1.8)
       multi_xml (>= 0.5.2)
@@ -16,10 +22,21 @@ GEM
     json (1.8.6)
     minitest (5.14.0)
     multi_xml (0.6.0)
+    multipart-post (2.1.1)
     pg (1.2.3)
+    slack-ruby-client (0.14.5)
+      activesupport
+      faraday (>= 0.9)
+      faraday_middleware
+      gli
+      hashie
+      websocket-driver
     thread_safe (0.3.6)
     tzinfo (1.2.6)
       thread_safe (~> 0.1)
+    websocket-driver (0.7.1)
+      websocket-extensions (>= 0.1.0)
+    websocket-extensions (0.1.4)
 
 PLATFORMS
   ruby
@@ -29,6 +46,7 @@ DEPENDENCIES
   dotenv (~> 2.1, >= 2.1.1)
   httparty (~> 0.13.7)
   pg (~> 1.2, >= 1.2.2)
+  slack-ruby-client (~> 0.14.5)
 
 RUBY VERSION
    ruby 2.6.5p114
