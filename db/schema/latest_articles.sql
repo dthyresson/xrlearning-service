@@ -15,7 +15,7 @@ select
 articles a
 join xr_company_articles_with_sectors c on c.feedly_id = a.feedly_id
 where
-a.published_at between current_date - interval '24 hours' and current_date
+a.published_at between CURRENT_TIMESTAMP - interval '24 hours' and CURRENT_TIMESTAMP
 group by a.feedly_id
 ),
 t2 as

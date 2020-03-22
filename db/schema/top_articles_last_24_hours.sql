@@ -17,7 +17,7 @@ join xr_company_articles_with_sectors c on c.feedly_id = a.feedly_id
 where (topic_score >= 0.3 or c.relevance_score >= 0.3)
 and (engagement >= 10  or engagement_rate >= 0.1)
 and
-a.published_at between current_date - interval '24 hours' and current_date
+a.published_at between CURRENT_TIMESTAMP - interval '24 hours' and CURRENT_TIMESTAMP
 group by a.feedly_id
 ),
 t2 as
