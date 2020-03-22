@@ -15,7 +15,7 @@ select
 articles a
 join xr_company_articles_with_sectors c on c.feedly_id = a.feedly_id
 where
-a.published_at between CURRENT_TIMESTAMP - interval '24 hours' and CURRENT_TIMESTAMP
+a.created_at between CURRENT_TIMESTAMP - interval '24 hours' and CURRENT_TIMESTAMP
 group by a.feedly_id
 ),
 t2 as
@@ -48,6 +48,6 @@ from t1
 join articles a on a.feedly_id = t1.feedly_id
 left join t2 on t2.feedly_id = t1.feedly_id
 order by
-a.published_at desc
+a.created_at desc
 )
 ;

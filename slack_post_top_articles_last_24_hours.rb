@@ -112,15 +112,15 @@ conn.exec(%Q(
 
      if newsletter_item['company_names'].any?
        company_list += newsletter_item['company_names']
-       captions << "*Companies and Organizations:* #{(newsletter_item['company_names'] || []).sample(10).sort.join(' - ')}"
+       captions << "*Companies and Organizations:* #{(newsletter_item['company_names'] || []).compact.sort.join(' - ')}"
      end
 
      if newsletter_item['topic_labels'].any?
-      captions << "*XR Topics:* #{(newsletter_item['topic_labels'] || []).sample(10).sort.join(' - ')}"
+      captions << "*XR Topics:* #{(newsletter_item['topic_labels'] || []).compact.sort.join(' - ')}"
      end
 
      if newsletter_item['categories'].any?
-       captions << "*Market:* #{(newsletter_item['categories'] || []).sample(10).sort.join(' - ')}"
+       captions << "*Market:* #{(newsletter_item['categories'] || []).compact.sort.join(' - ')}"
      end
 
      if captions.any?
@@ -151,7 +151,7 @@ conn.exec(%Q(
    end
 end
 
-message_title = "#{title} discusses #{company_list.flatten.uniq.sort.join(', ')}"
+message_title = "#{title} discusses #{company_list.flatten.uniq.compact.sort.join(', ')}"
 blocks = blocks.unshift(
 	{
 		"type": "section",
