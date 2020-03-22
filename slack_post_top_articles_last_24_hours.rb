@@ -2,6 +2,7 @@
 
 require 'rubygems'
 require 'dotenv'
+require 'imgix'
 require 'logger'
 require 'optparse'
 require 'pg'
@@ -38,6 +39,8 @@ OptionParser.new do |opts|
     args.channel = channel
   end
 end.parse!
+
+IMGIX = Imgix::Client.new(host: ENV.fetch('IMGIX_HOST'), secure_url_token: ENV.fetch('IMGIX_SECRET'))
 
 SLACK_CHANNEL_DEFAULT = ENV.fetch('SLACK_CHANNEL_DEFAULT')
 channel = options[:channel] ? (args.channel || SLACK_CHANNEL_DEFAULT) : SLACK_CHANNEL_DEFAULT
@@ -76,19 +79,7 @@ conn.exec(%Q(
 
     logger.info article_header
 
-     if newsletter_item['image_url']
-       blocks <<
-         {
-             type: "image",
-             title: {
-               type: "plain_text",
-               text: newsletter_item['site'],
-               emoji: true
-             },
-             image_url: newsletter_item['image_url'],
-             alt_text: newsletter_item['site']
-           }
-     end
+
 
      blocks <<
        {
@@ -98,6 +89,20 @@ conn.exec(%Q(
        			"text": article_header
        		}
         }
+
+      if newsletter_item['image_url']
+        blocks <<
+          {
+              type: "image",
+              title: {
+                type: "plain_text",
+                text: newsletter_item['site'],
+                emoji: true
+              },
+              image_url: IMGIX.path(newsletter_item['image_url']).to_url(h: 180),
+              alt_text: newsletter_item['site']
+            }
+      end
 
      if newsletter_item['summary_sentences'].any?
        blocks <<

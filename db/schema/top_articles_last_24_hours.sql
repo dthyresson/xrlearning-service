@@ -16,6 +16,8 @@ articles a
 join xr_company_articles_with_sectors c on c.feedly_id = a.feedly_id
 where (topic_score >= 0.3 or c.relevance_score >= 0.3)
 and (engagement >= 10  or engagement_rate >= 0.1)
+and
+a.published_at between current_date - interval '24 hours' and current_date
 group by a.feedly_id
 ),
 t2 as
@@ -47,8 +49,6 @@ select
 from t1
 join articles a on a.feedly_id = t1.feedly_id
 left join t2 on t2.feedly_id = t1.feedly_id
-where
-a.created_at >= current_date - interval '24 hours'
 order by
 engagement_rate desc
 )
