@@ -18,6 +18,10 @@ CREATE VIEW vw_feedly_entry_details AS (
           e.created_at
           , e.updated_at
           , e.feedly_id
+
+          , (e.payload ->> 'visual'::text)::jsonb ->> 'url'::text AS visual_image_url
+          , ((e.payload ->> 'enclosure'::text)::jsonb ->1)::jsonb ->> 'href'::text AS enclosure_image_url
+
           , e.payload ->> 'title'::text AS title
           , e.payload ->> 'author'::text AS author
           , COALESCE(e.payload ->> 'ampUrl'::text,
@@ -47,6 +51,10 @@ CREATE VIEW vw_feedly_entry_details AS (
 
     SELECT
       t1.*
+    , case visual_image_url
+      when 'none' then enclosure_image_url
+	      else visual_image_url
+      end as image_url
     , date_trunc('day', t1.published_at) as published_on
     , soundex(title) as soundex_title
     FROM t1

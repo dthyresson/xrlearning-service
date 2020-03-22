@@ -76,14 +76,28 @@ conn.exec(%Q(
 
     logger.info article_header
 
-    blocks <<
-      {
-      		"type": "section",
-      		"text": {
-      			"type": "mrkdwn",
-      			"text": article_header
-      		}
-       }
+     if newsletter_item['image_url']
+       blocks <<
+         {
+             type: "image",
+             title: {
+               type: "plain_text",
+               text: newsletter_item['site'],
+               emoji: true
+             },
+             image_url: newsletter_item['image_url'],
+             alt_text: newsletter_item['site']
+           }
+     end
+
+     blocks <<
+       {
+       		"type": "section",
+       		"text": {
+       			"type": "mrkdwn",
+       			"text": article_header
+       		}
+        }
 
      if newsletter_item['summary_sentences'].any?
        blocks <<
@@ -138,11 +152,9 @@ conn.exec(%Q(
    end
 end
 
-blocks << { "type": "divider" }
-
 client.chat_postMessage(channel: channel,
                         text: title,
-                        blocks: blocks,
+                        blocks: blocks.take(50),
                         as_user: true)
 
 logger.info "Slack message send to #{channel}"

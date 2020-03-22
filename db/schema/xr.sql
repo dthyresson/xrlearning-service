@@ -21,7 +21,7 @@ CREATE VIEW vw_xr_nlp_topics AS
 
 DROP MATERIALIZED VIEW IF EXISTS xr_company_articles_with_sectors;
 CREATE MATERIALIZED VIEW xr_company_articles_with_sectors AS (
-select 
+select
   n.feedly_id
 , n.topic_label
 , n.topic_score
@@ -35,6 +35,7 @@ select
 , oc.category
 , g.category_group
 , a.title
+, a.image_url
 , a.published_at
 , date_trunc('day', a.published_at) as published_on
 , date_trunc('week', a.published_at) as published_week

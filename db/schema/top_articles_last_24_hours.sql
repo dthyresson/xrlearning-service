@@ -42,6 +42,7 @@ select
 , a.url
 , a.author
 , a.site
+, a.image_url
 , t2.summary_sentences
 from t1
 join articles a on a.feedly_id = t1.feedly_id
