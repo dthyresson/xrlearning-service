@@ -62,6 +62,7 @@ CREATE VIEW vw_article_nlp_entities AS (
   , t1.permid
   , t1.wikidata_id
   , t1.wiki_link
+  , COALESCE(COALESCE(COALESCE(COALESCE(COALESCE(COALESCE(t1.crunchbase_id, t1.figi), t1.freebase_id), t1.lei), t1.permid), t1.wikidata_id), t1.wiki_link) as entity_external_id
   , MAX(t1.relevance_score) AS relevance_score
   , MAX(t1.confidence_sore) AS confidence_sore
   , COUNT(entity_id) as mentions
@@ -78,6 +79,7 @@ CREATE VIEW vw_article_nlp_entities AS (
   , permid
   , wikidata_id
   , wiki_link
+  , 12
   ORDER by feedly_id
 );
 
@@ -85,39 +87,70 @@ CREATE VIEW vw_article_nlp_entities AS (
 
 DROP VIEW IF EXISTS vw_article_nlp_companies CASCADE;
 CREATE VIEW vw_article_nlp_companies AS (
-WITH
-  t1 as (
-    SELECT feedly_id
-    , crunchbase_id
-    , max(relevance_score) as relevance_score
-    , max(confidence_sore) as confidence_sore
-    , max(mentions) as mentions
-    FROM vw_article_nlp_entities
+  WITH
+    t1 as (
+      SELECT
+        feedly_id
+      , entity_id
+      , entity_external_id
+      , crunchbase_id
+      , max(relevance_score) as relevance_score
+      , max(confidence_sore) as confidence_sore
+      , max(mentions) as mentions
+      FROM vw_article_nlp_entities
 
-    WHERE entity_type in ('Company', 'Organisation')
-    GROUP BY feedly_id, crunchbase_id
-  )
+      WHERE entity_type in ('Company', 'Organisation')
+      GROUP BY feedly_id, entity_id, entity_external_id, crunchbase_id
+    ),
 
-  SELECT DISTINCT
-    t1.feedly_id
-  , t1.relevance_score
-  , t1.confidence_sore
-  , o.uuid
-  , o.name
-  , o.short_description
-  , o.legal_name
-  , t1.crunchbase_id
-  , o.permalink
-  , o.cb_url
-  , o.status
-  , o.logo_url
-  , o.state_code
-  , o.country_code
-  , o.region
-  , o.city
-  , o.closed_on
-  FROM t1
-  JOIN organizations o ON o.permalink = t1.crunchbase_id
+   t2 as (
+     SELECT
+       feedly_id
+     , entity_id
+     , entity_external_id
+     , crunchbase_id
+     , relevance_score
+     , confidence_sore
+     , mentions
+     , row_number() over (partition by feedly_id, entity_external_id order by entity_id) as entity_row
+     FROM t1
+   ),
+
+   t3 as (
+     SELECT
+       feedly_id
+     , entity_id
+     , entity_external_id
+     , crunchbase_id
+     , relevance_score
+     , confidence_sore
+     , mentions
+     FROM t2
+     WHERE entity_row = 1
+   )
+
+    SELECT DISTINCT
+      t3.feedly_id
+    , t3.entity_id
+    , t3.entity_external_id
+    , t3.relevance_score
+    , t3.confidence_sore
+    , o.uuid
+    , o.name
+    , o.short_description
+    , o.legal_name
+    , t3.crunchbase_id
+    , o.permalink
+    , o.cb_url
+    , o.status
+    , o.logo_url
+    , o.state_code
+    , o.country_code
+    , o.region
+    , o.city
+    , o.closed_on
+    FROM t3
+    LEFT JOIN organizations o ON o.permalink = t3.crunchbase_id
 );
 
 ---

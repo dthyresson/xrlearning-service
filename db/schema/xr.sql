@@ -26,7 +26,7 @@ select
 , n.topic_label
 , n.topic_score
 , c.uuid
-, c.name
+, COALESCE(c.name, c.entity_id) as name
 , c.relevance_score
 , c.confidence_sore
 , c.country_code
@@ -44,8 +44,8 @@ from articles a
 join vw_article_nlp_topics n on n.feedly_id = a.feedly_id
 join vw_xr_nlp_topics t on t.topic_label = n.topic_label
 join vw_article_nlp_companies c on c.feedly_id = n.feedly_id
-join vw_organization_categories oc on oc.uuid = c.uuid
-join vw_organization_category_groups g on g.uuid = c.uuid
+left join vw_organization_categories oc on oc.uuid = c.uuid
+left join vw_organization_category_groups g on g.uuid = c.uuid
 );
 
 CREATE INDEX xr_company_articles_feedly_id_idx ON xr_company_articles_with_sectors USING btree (feedly_id);
@@ -59,6 +59,8 @@ CREATE INDEX xr_company_articles_published_on_idx ON xr_company_articles_with_se
 CREATE INDEX xr_company_articles_published_week_idx ON xr_company_articles_with_sectors USING btree (published_week);
 CREATE INDEX xr_company_articles_published_month_idx ON xr_company_articles_with_sectors USING btree (published_month);
 CREATE INDEX xr_company_articles_with_sectors_uuid_idx ON xr_company_articles_with_sectors USING btree (uuid);
+CREATE INDEX xr_company_articles_with_sectors_name_idx ON xr_company_articles_with_sectors USING btree (name);
+
 
 CREATE UNIQUE INDEX xr_company_articles_with_sectors_pk
   ON xr_company_articles_with_sectors (feedly_id, topic_label, uuid, category_group, category);

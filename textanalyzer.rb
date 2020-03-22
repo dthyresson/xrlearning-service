@@ -144,7 +144,8 @@ conn.exec(%Q(
 end
 
 if refresh
-  logger.info 'Refreshing views xr_company_articles_with_sectors ...'
+  logger.info 'Refreshing views ...'
+  conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY articles;')
   conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY xr_company_articles_with_sectors;')
   logger.info '... done!'
 end
