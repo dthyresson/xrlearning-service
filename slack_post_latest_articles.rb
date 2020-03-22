@@ -51,15 +51,9 @@ client.auth_test
 conn = PG.connect(config)
 
 title = ":new: *Latest 10 XR articles*"
-blocks = [
-	{
-		"type": "section",
-		"text": {
-			"type": "mrkdwn",
-			"text": title
-		}
-	}
-]
+
+blocks = []
+company_list = []
 
 conn.exec(%Q(
               SELECT
@@ -116,6 +110,7 @@ conn.exec(%Q(
      captions = []
 
      if newsletter_item['company_names'].any?
+       company_list += newsletter_item['company_names']
        captions << "*Companies and Organizations:* #{(newsletter_item['company_names'] || []).sample(10).sort.join(' - ')}"
      end
 
@@ -155,8 +150,19 @@ conn.exec(%Q(
    end
 end
 
+message_title = "#{title} discusses #{company_list.flatten.uniq.sort.join(', ')}"
+blocks = blocks.unshift(
+	{
+		"type": "section",
+		"text": {
+			"type": "mrkdwn",
+			"text": message_title
+		}
+	}
+)
+
 client.chat_postMessage(channel: channel,
-                        text: title,
+                        text: message_title,
                         blocks: blocks.take(50),
                         as_user: true)
 
