@@ -31,7 +31,7 @@ options = {}
 args = Options.new("world")
 
 OptionParser.new do |opts|
-  opts.banner = "Usage: Send top articles last 24 hours to Slack channel [options]"
+  opts.banner = "Usage: Send latest xr artilces to Slack channel [options]"
 
   opts.on("-c", "--channel==CHANNEL", "Slack channel to post message") do |channel|
     options[:channel] = channel
@@ -47,7 +47,7 @@ client.auth_test
 
 conn = PG.connect(config)
 
-title = ":top: *Top XR news.*"
+title = ":new: *Latest 10 XR articles*"
 blocks = [
 	{
 		"type": "section",
@@ -60,8 +60,8 @@ blocks = [
 
 conn.exec(%Q(
               SELECT
-                row_to_json(vw_top_articles_last_24_hours) as newsletter_item
-              FROM vw_top_articles_last_24_hours
+                row_to_json(vw_latest_articles) as newsletter_item
+              FROM vw_latest_articles
               LIMIT 10
             ) ) do |result|
 
