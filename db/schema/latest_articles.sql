@@ -6,10 +6,10 @@ with t1 as
 (
 select
  a.feedly_id
-, array_agg(distinct c.topic_label) as topic_labels
-, array_agg(distinct c.category) as categories
-, array_agg(distinct c.category_group) as category_group
-, array_agg(distinct c.name) as company_names
+, array_agg(DISTINCT c.topic_label) FILTER (WHERE c.topic_label IS NOT NULL) as topic_labels
+, array_agg(DISTINCT c.category) FILTER (WHERE c.category IS NOT NULL) AS categories
+, array_agg(DISTINCT c.category_group) FILTER (WHERE c.category_group IS NOT NULL)  AS category_group
+, array_agg(DISTINCT c.name) as company_names
 
  from
 articles a

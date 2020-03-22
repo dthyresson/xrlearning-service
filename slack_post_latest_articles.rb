@@ -111,15 +111,15 @@ conn.exec(%Q(
 
      if newsletter_item['company_names'].any?
        company_list += newsletter_item['company_names']
-       captions << "*Companies and Organizations:* #{(newsletter_item['company_names'] || []).compact.sample(10).sort.join(' - ')}"
+       captions << "*Companies and Organizations:* #{(newsletter_item['company_names'] || []).compact.sort.join(' - ')}"
      end
 
      if newsletter_item['topic_labels'].any?
-      captions << "*XR Topics:* #{(newsletter_item['topic_labels'] || []).compact.sample(10).sort.join(' - ')}"
+      captions << "*XR Topics:* #{(newsletter_item['topic_labels'] || []).compact.sort.join(' - ')}"
      end
 
      if newsletter_item['categories'].any?
-       captions << "*Market:* #{(newsletter_item['categories'] || []).compact.sample(10).sort.join(' - ')}"
+       captions << "*Market:* #{(newsletter_item['categories'] || []).compact.sort.join(' - ')}"
      end
 
      if captions.any?
