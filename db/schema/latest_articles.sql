@@ -1,5 +1,4 @@
 DROP VIEW IF EXISTS vw_latest_articles CASCADE;
-
 CREATE VIEW vw_latest_articles as
 (
 with t1 as
