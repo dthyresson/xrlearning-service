@@ -97,7 +97,7 @@ conn.exec(%Q(
             }
       end
 
-     if newsletter_item['summary_sentences'].any?
+     if newsletter_item['summary_sentences'].present? && newsletter_item['summary_sentences'].any?
        blocks <<
        {
        		"type": "section",
@@ -110,20 +110,20 @@ conn.exec(%Q(
 
      captions = []
 
-     if newsletter_item['company_names'].any?
+     if newsletter_item['company_names'].present? && newsletter_item['company_names'].any?
        company_list += newsletter_item['company_names']
        captions << "*Companies and Organizations:* #{(newsletter_item['company_names'] || []).compact.sort.join(' - ')}"
      end
 
-     if newsletter_item['topic_labels'].any?
+     if newsletter_item['topic_labels'].present? && newsletter_item['topic_labels'].any?
       captions << "*XR Topics:* #{(newsletter_item['topic_labels'] || []).compact.sort.join(' - ')}"
      end
 
-     if newsletter_item['categories'].any?
+     if newsletter_item['categories'].present? && newsletter_item['categories'].any?
        captions << "*Market:* #{(newsletter_item['categories'] || []).compact.sort.join(' - ')}"
      end
 
-     if captions.any?
+     if captions.present? && captions.any?
        elements = captions.map do |caption|
          {
            "type": "mrkdwn",
