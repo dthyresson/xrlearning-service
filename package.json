@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/dthyresson/xrlearning-service/issues"
   },
-  "homepage": "https://github.com/dthyresson/xrlearning-service#readme"
+  "homepage": "https://github.com/dthyresson/xrlearning-service#readme",
+  "dependencies": {
+    "make-runnable": "^1.3.6"
+  }
 }
