@@ -151,7 +151,7 @@ conn.exec(%Q(
    end
 end
 
-message_title = "#{title} discusses #{company_list.flatten.uniq.compact.sort.join(', ')}"
+message_title = "#{title} mention #{company_list.flatten.uniq.compact.sort.join(', ')}"
 blocks = blocks.unshift(
 	{
 		"type": "section",
