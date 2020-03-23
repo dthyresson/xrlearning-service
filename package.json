@@ -1,0 +1,19 @@
+{
+  "name": "xrlearning-service",
+  "version": "1.0.0",
+  "description": "Scripts to process xr related article data",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dthyresson/xrlearning-service.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dthyresson/xrlearning-service/issues"
+  },
+  "homepage": "https://github.com/dthyresson/xrlearning-service#readme"
+}
