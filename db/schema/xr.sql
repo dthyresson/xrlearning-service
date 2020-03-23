@@ -19,6 +19,31 @@ CREATE VIEW vw_xr_nlp_topics AS
 
 ---
 
+DROP VIEW IF EXISTS vw_xr_topics CASCADE;
+CREATE VIEW vw_xr_topics AS (
+		SELECT
+		  CASE topic_label
+		    WHEN 'Virtual reality headset'
+		    THEN 'Virtual reality headsets'
+		    WHEN 'Virtual reality organizations'
+		    THEN 'Virtual reality companies'
+		    WHEN 'Virtual machine'
+		    THEN 'Virtual machines'
+		    WHEN 'Virtual economy'
+		    THEN 'Virtual economies'
+		    WHEN 'Virtual assistant'
+		    THEN 'Virtual assistants'
+		    WHEN 'Mixed reality game'
+		    THEN 'Mixed reality games'
+		    ELSE topic_label
+		  END AS topic_label
+		FROM vw_xr_nlp_topics
+	    WHERE
+	      topic_label NOT IN ('Alternate reality', 'Virtual reality', 'Mixed reality', 'Reality')
+);
+
+---
+
 DROP MATERIALIZED VIEW IF EXISTS xr_company_articles_with_sectors;
 CREATE MATERIALIZED VIEW xr_company_articles_with_sectors AS (
 select
