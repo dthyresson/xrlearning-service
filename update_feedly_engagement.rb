@@ -101,4 +101,5 @@ update_feedly_engagement(conn: conn, since: since.days.ago)
 
 logger.info 'Refreshing articles ...'
 conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY articles;')
+conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY vw_xr_channel_articles;')
 logger.info '... articles refreshed!'
