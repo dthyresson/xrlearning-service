@@ -1,5 +1,15 @@
 DROP MATERIALIZED VIEW IF EXISTS vw_xr_channel_articles CASCADE;
 CREATE MATERIALIZED VIEW vw_xr_channel_articles AS (
+  WITH sentences AS
+  (
+    SELECT
+    a.feedly_id
+    , array_agg(s.summary_sentence) as summary_sentences
+    FROM articles a
+    LEFT JOIN vw_article_summary_sentences s on s.feedly_id = a.feedly_id
+    GROUP BY a.feedly_id
+  )
+
   SELECT
   DISTINCT
     ch.id as channel_id
@@ -12,11 +22,18 @@ CREATE MATERIALIZED VIEW vw_xr_channel_articles AS (
   , t.topic_label
   , a.feedly_id
   , lower(target || '-' || ch.target_id || '-' || ch.name || '-' || a.feedly_id || '-' || e.entity_type ||  '-' || e.entity_id || '-' || t.topic_label) as identifier
-  , a.created_at
-  , a.updated_at
-  , a.published_on
   , a.title
   , a.url
+  , a.author
+  , a.site
+  , a.image_url
+  , sentences.summary_sentences
+  , a.engagement_rate
+  , a.engagement
+  , a.created_at
+  , a.updated_at
+  , a.published_at
+  , a.published_at at time zone 'utc' at time zone 'est' as published_at_with_tz
   FROM vw_article_nlp_entities e
 
   JOIN articles a ON a.feedly_id = e.feedly_id
@@ -31,12 +48,14 @@ CREATE MATERIALIZED VIEW vw_xr_channel_articles AS (
   JOIN vw_xr_topics t ON t.topic_label = np.topic_label
                          AND np.topic_score >= r.topic_score_threshold
 
+  LEFT JOIN sentences on sentences.feedly_id = e.feedly_id
+
   ORDER BY
     c.name
   , e.entity_type
   , entity_id
   , t.topic_label
-  , published_on desc
+  , published_at desc
 );
 
 CREATE INDEX xr_channel_articles_channel_id_idx ON vw_xr_channel_articles USING btree (channel_id);
