@@ -110,25 +110,28 @@ CREATE VIEW vw_xr_channel_articles_unsent_by_channel_and_target AS (
   SELECT
     ch.id as channel_id
   , ch.name as channel_name
+  , ch.emoji_icon
   , d.target
   , d.target_id
   , a.feedly_id
   , a.title
+  , a.site
+  , a.author
+  , a.url
+  , a.image_url
+  , d.summary_sentences
   , d.concept_names
   , d.entity_types
   , d.topic_labels
   , d.categories
   , d.category_group
   , d.company_names
-  , a.site
-  , a.author
-  , a.image_url
-  , d.summary_sentences
   , a.engagement_rate
   , a.engagement
   , a.created_at
   , a.updated_at
   , a.published_at
+  , timezone('est'::text, timezone('utc'::text, a.published_at)) AS published_at_with_tz
   , ch.last_sent_at
   FROM articles a
   JOIN vw_xr_channel_article_details d on d.feedly_id = a.feedly_id
