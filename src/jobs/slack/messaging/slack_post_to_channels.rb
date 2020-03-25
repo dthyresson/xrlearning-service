@@ -172,8 +172,8 @@ conn.exec(%Q(
       )
 
       published_at = DateTime.parse(newsletter_item['published_at'])
-      mins = published_at.hour
-      secs = published_at.sec + rand(60)
+      mins = published_at.min + rand(10)
+      secs = published_at.sec + rand(10)
 
       post_at = Time.current.utc + mins.minutes + secs.seconds
 
