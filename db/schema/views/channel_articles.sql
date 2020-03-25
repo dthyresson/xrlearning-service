@@ -21,7 +21,7 @@ CREATE MATERIALIZED VIEW vw_xr_channel_articles AS (
   , e.entity_id
   , t.topic_label
   , a.feedly_id
-  , lower(target || '-' || ch.target_id || '-' || ch.name || '-' || a.feedly_id || '-' || e.entity_type ||  '-' || e.entity_id || '-' || t.topic_label) as identifier
+  , lower(channel_id || '-' || c.name || '-' || target || '-' || ch.target_id || '-' || ch.name || '-' || a.feedly_id || '-' || e.entity_type ||  '-' || e.entity_id || '-' || t.topic_label) as identifier
   , a.title
   , a.url
   , a.author

@@ -50,10 +50,10 @@ client.auth_test
 
 conn = PG.connect(config)
 
-# logger.info 'Refreshing articles ...'
-# conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY vw_xr_channel_articles;')
-# conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY vw_xr_channel_article_details;')
-# logger.info '... articles refreshed!'
+logger.info 'Refreshing articles ...'
+conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY vw_xr_channel_articles;')
+conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY vw_xr_channel_article_details;')
+logger.info '... articles refreshed!'
 
 conn.exec(%Q(
               SELECT
