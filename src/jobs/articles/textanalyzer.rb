@@ -147,8 +147,8 @@ if refresh
   logger.info 'Refreshing views ...'
   conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY articles;')
   conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY xr_company_articles_with_sectors;')
-  conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY vw_xr_channel_articles;')
-  conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY vw_xr_channel_article_details;')
+  # conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY vw_xr_channel_articles;')
+  # conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY vw_xr_channel_article_details;')
   logger.info '... done!'
 end
 conn.finish
