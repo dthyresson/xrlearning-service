@@ -6,7 +6,8 @@ CREATE TABLE channels (
     name text NOT NULL UNIQUE,
     description text,
     target text NOT NULL,
-    target_id text NOT NULL
+    target_id text NOT NULL,
+    last_sent_at timestamp without time zone    
 );
 
 CREATE INDEX channels_target_target_id_idx ON channels(target text_ops,target_id text_ops);

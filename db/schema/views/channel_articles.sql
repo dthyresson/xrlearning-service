@@ -73,3 +73,69 @@ CREATE INDEX xr_channel_articles_target_id_idx ON vw_xr_channel_articles USING b
 
 CREATE UNIQUE INDEX vw_xr_channel_articles_uniqueness
   ON vw_xr_channel_articles (identifier);
+
+---
+
+DROP MATERIALIZED VIEW IF EXISTS vw_xr_channel_article_details CASCADE;
+CREATE MATERIALIZED VIEW vw_xr_channel_article_details AS (
+  SELECT
+    ca.channel_id
+  , ca.target
+  , ca.target_id
+  , ca.feedly_id
+  , ca.summary_sentences
+  , array_agg(DISTINCT ca.concept_name) FILTER (WHERE ca.concept_name IS NOT NULL) as concept_names
+  , array_agg(DISTINCT ca.entity_type) FILTER (WHERE ca.entity_type IS NOT NULL) as entity_types
+  , array_agg(DISTINCT ca.topic_label) FILTER (WHERE ca.topic_label IS NOT NULL) as topic_labels
+  , array_agg(DISTINCT c.category) FILTER (WHERE c.category IS NOT NULL) AS categories
+  , array_agg(DISTINCT c.category_group) FILTER (WHERE c.category_group IS NOT NULL) AS category_group
+  , array_agg(DISTINCT c.name) AS company_names
+  FROM vw_xr_channel_articles ca
+    LEFT JOIN xr_company_articles_with_sectors c ON c.feedly_id = ca.feedly_id
+  GROUP BY 1, 2, 3, 4, 5
+);
+
+CREATE INDEX vw_xr_channel_article_details_channel_id_idx ON vw_xr_channel_article_details USING btree (channel_id);
+CREATE INDEX vw_xr_channel_article_details_target_idx ON vw_xr_channel_article_details USING btree (target);
+CREATE INDEX vw_xr_channel_article_details_target_id_idx ON vw_xr_channel_article_details USING btree (target_id);
+CREATE INDEX vw_xr_channel_article_details_feedly_id_idx ON vw_xr_channel_article_details USING btree (feedly_id);
+
+CREATE UNIQUE INDEX vw_xr_channel_article_details_uniqueness
+  ON vw_xr_channel_article_details (channel_id, target, target_id, feedly_id);
+
+---
+
+DROP VIEW IF EXISTS vw_xr_channel_articles_unsent_by_channel_and_target CASCADE;
+CREATE VIEW vw_xr_channel_articles_unsent_by_channel_and_target AS (
+  SELECT
+    ch.id as channel_id
+  , ch.name as channel_name
+  , d.target
+  , d.target_id
+  , a.feedly_id
+  , a.title
+  , d.concept_names
+  , d.entity_types
+  , d.topic_labels
+  , d.categories
+  , d.category_group
+  , d.company_names
+  , a.site
+  , a.author
+  , a.image_url
+  , d.summary_sentences
+  , a.engagement_rate
+  , a.engagement
+  , a.created_at
+  , a.updated_at
+  , a.published_at
+  , ch.last_sent_at
+  FROM articles a
+  JOIN vw_xr_channel_article_details d on d.feedly_id = a.feedly_id
+  JOIN channels ch on ch.id = d.channel_id
+  WHERE
+    a.created_at > ch.last_sent_at
+  ORDER BY 1, 2, a.published_at
+);
+
+---
