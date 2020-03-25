@@ -178,7 +178,7 @@ conn.exec(%Q(
       post_at = Time.current.utc + mins.minutes + secs.seconds
 
       message = {
-                  channel: channel_id,
+                  channel: channel,
                   text: message_title,
                   blocks: blocks.to_json,
                   as_user: true,
