@@ -7,7 +7,7 @@ CREATE TABLE channels (
     description text,
     target text NOT NULL,
     target_id text NOT NULL,
-    emoji_icon text,
+    emoji_icon text NOT NULL,
     last_sent_at timestamp without time zone
 );
 
@@ -21,7 +21,8 @@ CREATE TABLE concepts (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     name text NOT NULL,
-    description text
+    description text,
+    emoji_icon text NOT NULL
 );
 
 CREATE UNIQUE INDEX concepts_name_idx ON concepts(name text_ops);
@@ -46,7 +47,8 @@ CREATE TABLE concept_entity_rules (
     entity_type text NOT NULL,
     entity_confidence_score_threshold numeric(5,3) NOT NULL DEFAULT '0'::numeric,
     entity_relevance_score_threshold numeric(5,3) NOT NULL DEFAULT '0'::numeric,
-    topic_score_threshold numeric(5,3) NOT NULL DEFAULT '0'::numeric
+    topic_score_threshold numeric(5,3) NOT NULL DEFAULT '0'::numeric,
+    emoji_icon text NOT NULL    
 );
 
 CREATE UNIQUE INDEX concept_entity_rules_concept_id_entity_type_idx ON concept_entity_rules(concept_id int8_ops,entity_type text_ops);
