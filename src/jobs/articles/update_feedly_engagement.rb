@@ -98,9 +98,3 @@ since = options[:since] ? (args.since || 2).to_i : 1
 logger.info "Refreshing feedly engagement since #{since} days ago/#{since.days.ago} ... "
 
 update_feedly_engagement(conn: conn, since: since.days.ago)
-
-logger.info 'Refreshing articles ...'
-conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY articles;')
-conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY vw_xr_channel_articles;')
-conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY vw_xr_channel_article_details;')
-logger.info '... articles refreshed!'
