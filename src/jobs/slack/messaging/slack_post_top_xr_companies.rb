@@ -112,6 +112,8 @@ conn.exec(%Q(
   end
 end
 
+conn.finish unless conn.finished?
+
 blocks << {
   "type": "section",
   "fields": fields

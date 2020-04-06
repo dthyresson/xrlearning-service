@@ -51,8 +51,7 @@ client.auth_test
 conn = PG.connect(config)
 
 logger.info 'Refreshing articles ...'
-conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY vw_xr_channel_articles;')
-conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY vw_xr_channel_article_details;')
+conn.exec('REFRESH MATERIALIZED VIEW CONCURRENTLY vw_xr_channel_articles; REFRESH MATERIALIZED VIEW CONCURRENTLY vw_xr_channel_article_details')
 logger.info '... articles refreshed!'
 
 conn.exec(%Q(
@@ -81,7 +80,7 @@ conn.exec(%Q(
 
     byline = [newsletter_item['author'], newsletter_item['site']].compact.join(' - ')
     published_at = DateTime.parse(newsletter_item['published_at_with_tz'])
-    article_header = ":postbox: <#{newsletter_item['url']}|#{newsletter_item['title']}>"
+    article_header = ":postbox: <#{newsletter_item['url']}|#{title}>"
 
     logger.info article_header
 
@@ -126,8 +125,10 @@ conn.exec(%Q(
        captions << "*Companies and Organizations:* #{(newsletter_item['company_names'] || []).compact.sort.join(' - ')}"
      end
 
+     topic_labels = ""
      if newsletter_item['topic_labels'].present? && newsletter_item['topic_labels'].any?
-      captions << "*XR Topics:* #{(newsletter_item['topic_labels'] || []).compact.sort.join(' - ')}"
+       topic_labels = (newsletter_item['topic_labels'] || []).compact.sort.join(' - ')
+       captions << "*XR Topics:* #{topic_labels}"
      end
 
      if newsletter_item['categories'].present? && newsletter_item['categories'].any?
@@ -160,7 +161,7 @@ conn.exec(%Q(
   			]
   		}
 
-      message_title = "#{title} mention #{company_list.flatten.uniq.compact.sort.join(', ')}"
+      message_title = "I found a new article about #{newsletter_item['channel_id']}.\n\nIt mentions #{topic_labels}."
       blocks = blocks.unshift(
        {
          "type": "section",
@@ -189,8 +190,10 @@ conn.exec(%Q(
 
       client.chat_scheduleMessage(message)
 
-      conn.exec("update channels set last_sent_at = $1 where id = $2", [newsletter_item['created_at'], channel_id])
+      conn.exec("update channels set last_sent_at = $1 where id = $2 and last_sent_at < $1", [newsletter_item['created_at'], channel_id])
 
       logger.info "Slack message sending to #{channel} as #{post_at}"
    end
 end
+
+conn.finish unless conn.finished?

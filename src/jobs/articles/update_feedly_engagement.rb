@@ -88,6 +88,8 @@ def update_feedly_engagement(conn:, since: 7.days.ago)
       logger.info 'next'
     end
   end
+
+  conn.finish unless conn.finished?
 end
 
 # Maybe refresh 1 day, 2 days, 4 days and 7 days after the crawl date?

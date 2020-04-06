@@ -14,9 +14,12 @@ CREATE MATERIALIZED VIEW vw_xr_channel_articles AS (
   DISTINCT
     ch.id as channel_id
   , ch.name as channel_name
+  , ch.emoji_icon channel_emoji_icon
   , ch.target
   , ch.target_id
   , c.name as concept_name
+  , c.emoji_icon concept_emoji_icon
+  , r.emoji_icon concept_rule_emoji_icon
   , e.entity_type
   , e.entity_id
   , t.topic_label
@@ -80,11 +83,14 @@ DROP MATERIALIZED VIEW IF EXISTS vw_xr_channel_article_details CASCADE;
 CREATE MATERIALIZED VIEW vw_xr_channel_article_details AS (
   SELECT
     ca.channel_id
+  , ca.channel_emoji_icon
   , ca.target
   , ca.target_id
   , ca.feedly_id
   , ca.summary_sentences
   , array_agg(DISTINCT ca.concept_name) FILTER (WHERE ca.concept_name IS NOT NULL) as concept_names
+  , array_agg(DISTINCT ca.concept_emoji_icon) FILTER (WHERE ca.concept_emoji_icon IS NOT NULL) as concept_emoji_icons
+  , array_agg(DISTINCT ca.concept_rule_emoji_icon) FILTER (WHERE ca.concept_rule_emoji_icon IS NOT NULL) as concept_rule_emoji_icons
   , array_agg(DISTINCT ca.entity_type) FILTER (WHERE ca.entity_type IS NOT NULL) as entity_types
   , array_agg(DISTINCT ca.topic_label) FILTER (WHERE ca.topic_label IS NOT NULL) as topic_labels
   , array_agg(DISTINCT c.category) FILTER (WHERE c.category IS NOT NULL) AS categories
@@ -92,7 +98,7 @@ CREATE MATERIALIZED VIEW vw_xr_channel_article_details AS (
   , array_agg(DISTINCT c.name) AS company_names
   FROM vw_xr_channel_articles ca
     LEFT JOIN xr_company_articles_with_sectors c ON c.feedly_id = ca.feedly_id
-  GROUP BY 1, 2, 3, 4, 5
+  GROUP BY 1, 2, 3, 4, 5, 6
 );
 
 CREATE INDEX vw_xr_channel_article_details_channel_id_idx ON vw_xr_channel_article_details USING btree (channel_id);
@@ -110,7 +116,7 @@ CREATE VIEW vw_xr_channel_articles_unsent_by_channel_and_target AS (
   SELECT
     ch.id as channel_id
   , ch.name as channel_name
-  , ch.emoji_icon
+  , ch.emoji_icon channel_emoji_icon
   , d.target
   , d.target_id
   , a.feedly_id
@@ -121,6 +127,8 @@ CREATE VIEW vw_xr_channel_articles_unsent_by_channel_and_target AS (
   , a.image_url
   , d.summary_sentences
   , d.concept_names
+  , d.concept_emoji_icons
+  , d.concept_rule_emoji_icons
   , d.entity_types
   , d.topic_labels
   , d.categories

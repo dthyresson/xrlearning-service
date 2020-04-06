@@ -143,4 +143,4 @@ conn.exec(%Q(
   end
 end
 
-conn.finish
+conn.finish unless conn.finished?

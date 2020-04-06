@@ -151,6 +151,8 @@ conn.exec(%Q(
    end
 end
 
+conn.finish unless conn.finished?
+
 message_title = "#{title} mention #{company_list.flatten.uniq.compact.sort.join(', ')}"
 blocks = blocks.unshift(
 	{

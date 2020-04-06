@@ -34,7 +34,7 @@ CREATE VIEW vw_article_nlp_entities AS (
   	SELECT
   	  e.feedly_id
   	, jsonb_array_elements(jsonb_array_elements((e.payload -> 'entities'::text)) -> 'type'::text) ->> 0 AS entity_type
-  	, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'entityId'::text AS entity_id
+  	, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'entityEnglishId'::text AS entity_id
   	, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'unit'::text AS unit
   	, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'crunchbaseId'::text AS crunchbase_id
   	, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'figi'::text AS figi
@@ -43,6 +43,10 @@ CREATE VIEW vw_article_nlp_entities AS (
   	, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'permid'::text AS permid
   	, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'wikidataId'::text AS wikidata_id
   	, jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'wikiLink'::text AS wiki_link
+    , jsonb_array_elements((e.payload -> 'entities'::text)) ->> 'matchedText'::text AS matched_text
+    , jsonb_array_elements((e.payload -> 'entities'::text)) -> 'startingPos'::text AS starting_pos
+    , jsonb_array_elements((e.payload -> 'entities'::text)) -> 'endingPos'::text AS ending_pos
+    , jsonb_array_elements((e.payload -> 'entities'::text)) -> 'matchingTokens'::text AS matching_tokens
   	, (jsonb_array_elements((e.payload -> 'entities'::text)) -> 'relevanceScore'::text)::numeric AS relevance_score
   	, (jsonb_array_elements((e.payload -> 'entities'::text)) -> 'confidenceScore'::text)::numeric  AS confidence_sore
   	FROM feedly_entry_text_analyses e
@@ -63,6 +67,9 @@ CREATE VIEW vw_article_nlp_entities AS (
   , t1.wikidata_id
   , t1.wiki_link
   , COALESCE(COALESCE(COALESCE(COALESCE(COALESCE(COALESCE(t1.crunchbase_id, t1.figi), t1.freebase_id), t1.lei), t1.permid), t1.wikidata_id), t1.wiki_link) as entity_external_id
+  , matched_text
+  , starting_pos
+  , matching_tokens
   , MAX(t1.relevance_score) AS relevance_score
   , MAX(t1.confidence_sore) AS confidence_sore
   , COUNT(entity_id) as mentions
@@ -80,6 +87,9 @@ CREATE VIEW vw_article_nlp_entities AS (
   , wikidata_id
   , wiki_link
   , 12
+  , matched_text
+  , starting_pos
+  , matching_tokens  
   ORDER by feedly_id
 );
 
@@ -185,6 +195,21 @@ SELECT
 FROM
 articles e
 JOIN feedly_entry_text_analyses nlp ON nlp.feedly_id = e.feedly_id
+);
+
+---
+
+DROP VIEW IF EXISTS vw_nlp_entities_without_concepts CASCADE;
+CREATE VIEW vw_nlp_entities_without_concepts AS (
+  SELECT
+  distinct npe.entity_type
+  FROM vw_article_nlp_entities npe
+  EXCEPT
+
+  SELECT
+  DISTINCT cer.entity_type
+  FROM concept_entity_rules cer
+  ORDER BY 1
 );
 
 ---
