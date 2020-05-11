@@ -62,8 +62,9 @@ conn.exec(%Q(
               FROM feedly_entries e
               LEFT JOIN feedly_entry_text_analyses a on e.feedly_id = a.feedly_id
               JOIN vw_feedly_entry_details d on d.feedly_id = e.feedly_id
-              WHERE a.feedly_id IS NULL
-              ORDER BY e.created_at, e.feedly_id
+              WHERE a.feedly_id IS NULL OR (a.feedly_id IS NOT NULL AND a.status_code IS NULL)
+              ORDER BY e.created_at desc, e.feedly_id
+              LIMIT 300
             ) ) do |result|
   logger.info "Entries to enrich: #{result.count}"
   result.each_with_index do |row, index|
