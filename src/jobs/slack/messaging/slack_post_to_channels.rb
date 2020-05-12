@@ -72,6 +72,8 @@ conn.exec(%Q(
     newsletter_item = JSON.parse(row.dig('newsletter_item'))
 
     channel_id = newsletter_item['channel_id']
+    channel_name = newsletter_item['channel_name']
+    channel_emoji_icon = newsletter_item['channel_emoji_icon']
     channel = newsletter_item['target_id']
 
     logger.info "Article #{newsletter_item['title']} to send to #{channel}"
@@ -161,7 +163,7 @@ conn.exec(%Q(
   			]
   		}
 
-      message_title = "I found a new article about #{newsletter_item['channel_id']}.\n\nIt mentions #{topic_labels}."
+      message_title = "I found a new article about #{channel_emoji_icon} #{channel_name}.\n\nIt mentions #{topic_labels}."
       blocks = blocks.unshift(
        {
          "type": "section",
