@@ -2,7 +2,7 @@ ruby '2.6.5'
 
 source 'https://rubygems.org'
 
-gem 'activesupport', '~> 5.0', '>= 5.0.0.1'
+gem 'activesupport', '~> 5.2'
 gem 'dotenv', '~> 2.1', '>= 2.1.1'
 gem 'httparty', '~> 0.13.7'
 gem 'imgix', '~> 3.2', '>= 3.2.1'
